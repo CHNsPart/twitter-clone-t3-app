@@ -4,22 +4,21 @@ import Head from "next/head";
 import { AiOutlineLogout } from "react-icons/ai"
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime"
-import { Triangle } from  'react-loader-spinner'
 import { SignInButton, useUser, SignOutButton } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api"; 
+import { LoadingPage } from "~/components/loading";
 
-const Home: NextPage = (props) => {
 
-  dayjs.extend(relativeTime)
+
+dayjs.extend(relativeTime)
   /* Stylings */
   const btnStyle = "bg-none text-center py-3 px-10 border border-purple-500 rounded-xl text-purple-500 cursor-pointer hover:bg-purple-500 hover:text-white"
 
   const btnOutStyle = "bg-none text-center p-4 rounded-xl text-red-500 cursor-pointer hover:bg-red-500 hover:text-white"
 
   const postStyle = "bg-purple-200 text-purple-950 py-2 px-5 rounded-lg w-full p-5"
-  const loaderStyle = "bg-black text-white flex items-center justify-center h-screen w-full"
 
   const Avatar = () => {
     
@@ -68,31 +67,38 @@ const Home: NextPage = (props) => {
     )
   }
 
-  const { isSignedIn, user, isLoaded } = useUser()
-  const { data, isLoading } = api.posts.getAll.useQuery()
+  
+  const Feed = () => {
 
-  if (isLoading) {
+    const { data, isLoading: postsLoading } = api.posts.getAll.useQuery()
+
+    if (postsLoading) return <LoadingPage/>
+    if (!data) return <div>Something went wrong !</div> 
+
     return (
-      <div className="h-screen w-full flex justify-center items-center">
-        <Triangle
-          height="50"
-          width="50"
-          color='rgb(168 85 247)'
-          ariaLabel="triangle-loading"
-          wrapperStyle={{}}
-          visible={true}
-        />
+      <div className="flex flex-col gap-5 w-full p-5 border-b border-purple-50/20">
+        { [...data]?.map((fullPost) => (
+          <PostView key={fullPost.post.id} {...fullPost} />
+        )) }
       </div>
     )
   }
 
-  if (!data) {
-    return <div className={postStyle}>Something went wrong!</div>;
-  }
+  
+  const Home: NextPage = (props) => {
 
-  if (!isLoaded) {
-    return <div className={loaderStyle}>Loading...</div>;
-  }
+  const { isSignedIn, user, isLoaded: userLoaded } = useUser()
+  
+  api.posts.getAll.useQuery()
+
+  // Return if both aren't loaded, since user tends to load faster
+  /* if (!postsLoaded && !postsLoaded) return <div/> */
+
+  // if (postsLoaded) return <LoadingPage/>
+
+  // if (!data) return <div className={postStyle}>Something went wrong!</div>
+
+  if (!userLoaded) return <LoadingPage/>
 
   return (
     <>
@@ -106,7 +112,7 @@ const Home: NextPage = (props) => {
           
           <div className="flex w-full border-b border-purple-50/20 justify-between items-center p-5">
             
-            { user&&isSignedIn && <Avatar/> }
+            { isSignedIn && <Avatar/> }
             
             <h1 className="text-2xl text-white font-bold"> 
               { isSignedIn ?
@@ -120,9 +126,9 @@ const Home: NextPage = (props) => {
             </h1>
 
 
-            { !user && <div className={btnStyle}><SignInButton /></div> }
+            { !isSignedIn && <div className={btnStyle}><SignInButton /></div> }
             
-            { !!user && <div className={btnOutStyle}><SignOutButton><AiOutlineLogout size={30}/></SignOutButton></div> }
+            { !!isSignedIn && <div className={btnOutStyle}><SignOutButton><AiOutlineLogout size={30}/></SignOutButton></div> }
 
           </div>
           { isSignedIn &&
@@ -131,12 +137,7 @@ const Home: NextPage = (props) => {
               <CreatePostWizard/>
             </div>
           }
-
-          <div className="flex flex-col gap-5 w-full p-5 border-b border-purple-50/20">
-            { [...data]?.map((fullPost) => (
-              <PostView key={fullPost.post.id} {...fullPost} />
-            )) }
-          </div>
+          <Feed/>
         </div>
       </main>
     </>
