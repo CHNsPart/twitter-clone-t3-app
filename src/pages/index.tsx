@@ -32,7 +32,6 @@ const Home: NextPage = () => {
           { !user && <div className={btnStyle}><SignInButton /></div> }
           { !!user && <div className={btnStyle}><SignOutButton /></div> }
         </div>
-        { isSignedIn &&
         <div>
           { data?.map( (post) => (
             <div className={postStyle} key={post.id}>
@@ -40,7 +39,6 @@ const Home: NextPage = () => {
             </div>
           )) }
         </div>
-        }
       </main>
     </>
   );
