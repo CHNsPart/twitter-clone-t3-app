@@ -4,6 +4,7 @@ import Head from "next/head";
 import { AiOutlineLogout } from "react-icons/ai"
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime"
+import { Triangle } from  'react-loader-spinner'
 import { SignInButton, useUser, SignOutButton } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
@@ -71,7 +72,18 @@ const Home: NextPage = (props) => {
   const { data, isLoading } = api.posts.getAll.useQuery()
 
   if (isLoading) {
-    return <div className={postStyle}>Loading...</div>;
+    return (
+      <div className="h-screen w-full flex justify-center items-center">
+        <Triangle
+          height="50"
+          width="50"
+          color='rgb(168 85 247)'
+          ariaLabel="triangle-loading"
+          wrapperStyle={{}}
+          visible={true}
+        />
+      </div>
+    )
   }
 
   if (!data) {
