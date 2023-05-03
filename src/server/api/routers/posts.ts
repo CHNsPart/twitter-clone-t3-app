@@ -58,7 +58,9 @@ export const postsRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        content: z.string().min(5).max(208),
+        content: z.string()
+        .min(5, { message: 'Tweet must be at least 5 characters long' })
+        .max(50, { message: 'Tweet cannot be more than 50 characters long' }),
       }))
       .mutation(async ({ ctx, input }) => {
         const authorId = ctx.userId;
