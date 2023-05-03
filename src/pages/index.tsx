@@ -8,13 +8,16 @@ import { SignInButton, useUser, SignOutButton } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api"; 
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingTriangle } from "~/components/loading";
+import { useState } from "react";
 
 
 
 dayjs.extend(relativeTime)
   /* Stylings */
   const btnStyle = "bg-none text-center py-3 px-10 border border-purple-500 rounded-xl text-purple-500 cursor-pointer hover:bg-purple-500 hover:text-white"
+
+  const btnStylePost = "bg-none text-center py-2 px-10 rounded-full text-purple-500 cursor-pointer hover:bg-purple-500/10 hover:text-white"
 
   const btnOutStyle = "bg-none text-center p-4 rounded-xl text-red-500 cursor-pointer hover:bg-red-500 hover:text-white"
 
@@ -37,14 +40,32 @@ dayjs.extend(relativeTime)
   const CreatePostWizard = () => {
     
     const { user } = useUser()
+    const [input, setInput] = useState("")
+    const ctx = api.useContext()
+    const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+      onSuccess: () => {
+        setInput("")
+        void ctx.posts.getAll.invalidate();
+      }
+    })
+    
+    // mutate()
     // console.log(user)
     if(!user) return null
     
     return (
       <div className="flex justify-start items-center p-1 border border-purple-500 rounded-full gap-5">
         <Image height={56} width={56} className="object-contain w-10 h-10 rounded-full" src={user.profileImageUrl} alt={`$sc's post`} />
-        <input placeholder="Type your tweet !" type="text" 
-        className="bg-transparent outline-none p-2 w-full rounded-full ring-0 active:border-0" />
+        <input 
+          placeholder="Type your tweet !"
+          type="text" 
+          className="bg-transparent outline-none p-2 w-full 
+          rounded-full ring-0 active:border-0" 
+          value = {input}
+          disabled = {isPosting}
+          onChange = {(e) => setInput(e.target.value)}
+        />
+        <button className={btnStylePost} onClick={()=>mutate({ content: input })}>{isPosting ? <LoadingTriangle size={20}/> :"Post"}</button>
       </div>
     )
   }
@@ -77,7 +98,7 @@ dayjs.extend(relativeTime)
 
     return (
       <div className="flex flex-col gap-5 w-full p-5 border-b border-purple-50/20">
-        { [...data]?.map((fullPost) => (
+        {data?.map((fullPost) => (
           <PostView key={fullPost.post.id} {...fullPost} />
         )) }
       </div>
