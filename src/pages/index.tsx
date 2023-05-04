@@ -206,7 +206,7 @@ dayjs.extend(relativeTime)
                 ) 
                 :
                 <div className="flex justify-center items-center gap-2">
-                  <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" /><span>Tweet</span>
+                  <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" /><span className="text-2xl font-bold">Tweet</span>
                 </div>
               }
             </h1>

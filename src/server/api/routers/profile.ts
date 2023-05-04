@@ -23,7 +23,6 @@ export const profileRouter = createTRPCRouter({
         });
         /* If no user */
         if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "User not found !" })
-        
         return filterUserForClient(user);
     })
 });

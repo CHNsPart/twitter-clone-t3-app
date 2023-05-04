@@ -5,6 +5,11 @@ import { prisma } from "~/server/db";
 import { createServerSideHelpers } from '@trpc/react-query/server';
 import { appRouter } from "~/server/api/root";
 import superjson from "superjson";
+import { HeadLayout, PageLayout } from "~/components/layout";
+import Image from "next/image";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime"
+import { InputProfile, InputWrapper } from "~/components/profile";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }: InferGetStaticPropsType<typeof getStaticProps>) => {
   
@@ -12,11 +17,14 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }: InferGetStati
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     username,
   });
-
+  
   // console.log(data?.email)
-
+  
   if (!data) return <div>404 Nigga!</div>
+  
+  dayjs.extend(relativeTime)
 
+  // console.log(data.socials)
   return (
     <>
       <Head>
@@ -41,11 +49,47 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }: InferGetStati
           <meta property="twitter:image" 
           content="https://chnspart.com/meta/tweetmeta.png"/>
       </Head>
-      <main className="flex justify-center h-full">
-        <div>
-          {data.username}
+      <PageLayout>
+        <HeadLayout>
+          <div className="flex justify-center items-center gap-2">
+            <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" />
+            <span className="text-2xl font-bold">Tweet</span>
+          </div>
+          <span>
+            was active {dayjs(data.lastSignInAt).fromNow()}
+          </span> 
+        </HeadLayout>
+        <div 
+          className="flex flex-col md:flex-row justify-between items-center 
+                     p-5 gap-2 border-b border-purple-50/20 md:items-start
+                     md:p-5 md:gap-2"
+          >
+          <div 
+            className="flex flex-row overflow-auto gap-4
+                       md:flex-col md:overflow-auto md:gap-5"
+          >
+            <Image className="rounded-xl" src={data.profilePicture} height={150} width={150} alt="logo h-16 w-16 p-2" />
+          </div>
+          <div className="flex flex-col gap-2 md:gap-5 justify-between w-full">
+            <InputWrapper>
+              <InputProfile title="first name" value={data.firstName || 'default'}/>
+              <InputProfile title="last name" value={data.lastName || 'default'}/>
+            </InputWrapper>
+            <InputWrapper>
+              <InputProfile title="username" value={data.username || 'default'}/>
+              <InputProfile title="username" value={data.email || 'default'}/>
+            </InputWrapper>
+            <InputWrapper>
+              <InputProfile title="gender" value={data.gender || '🤐'}/>
+              <InputProfile title="birthday" value={data.birthday || '🤐'}/>
+            </InputWrapper>
+            <InputWrapper>
+              <InputProfile title="last visit" value={dayjs(data.lastSignInAt).fromNow() || '🤐'}/>
+              <InputProfile title="been with us since" value={dayjs(data.createdAt).fromNow() || '🤐'}/>
+            </InputWrapper>
+          </div>
         </div>
-      </main>
+      </PageLayout>
     </>
   );
 };
