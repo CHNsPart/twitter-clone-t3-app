@@ -12,6 +12,7 @@ import type { RouterOutputs } from "~/utils/api";
 import { LoadingPage, LoadingTriangle } from "~/components/loading";
 import { useState } from "react";
 import Link from "next/link";
+import { HeadLayout, PageLayout } from "~/components/layout";
 
 
 
@@ -37,7 +38,6 @@ dayjs.extend(relativeTime)
         <Image height={64} width={64} className="object-contain w-16 h-16 rounded-full opacity-50" src={user.profileImageUrl} alt="avatar" />
       </div>
     )
-  
   }
 
   const CreatePostWizard = () => {
@@ -76,11 +76,7 @@ dayjs.extend(relativeTime)
         }
       }
     })
-    // #221133
-    // #d3cfd6
-    
-    // mutate()
-    // console.log(user)
+
     if(!user) return null
     
     return (
@@ -197,11 +193,8 @@ dayjs.extend(relativeTime)
           content="https://chnspart.com/meta/tweetmeta.png"/>
         </meta>
       </Head>
-      <main className="flex justify-center h-full">
-        <div className="flex flex-col h-full w-full border-x border-purple-50/20 md:max-w-2xl">
-          
-          <div className="flex w-full border-b border-purple-50/20 justify-between items-center p-5">
-            
+        <PageLayout>
+            <HeadLayout>
             { isSignedIn && <Avatar/> }
             
             <h1 className="text-2xl text-white font-bold"> 
@@ -221,9 +214,13 @@ dayjs.extend(relativeTime)
 
             { !isSignedIn && <div className={btnStyle}><SignInButton /></div> }
             
-            { !!isSignedIn && <div className={btnOutStyle}><SignOutButton><AiOutlineLogout size={30}/></SignOutButton></div> }
-
-          </div>
+            { !!isSignedIn && 
+              <div className={btnOutStyle}>
+                <SignOutButton><AiOutlineLogout size={30}/></SignOutButton>
+              </div> 
+            }
+            
+          </HeadLayout>
           { isSignedIn &&
             <div className="flex flex-col gap-5 w-full p-5 
             border-b border-purple-50/20">
@@ -231,8 +228,7 @@ dayjs.extend(relativeTime)
             </div>
           }
           <Feed/>
-        </div>
-      </main>
+      </PageLayout>
     </>
   );
 };
