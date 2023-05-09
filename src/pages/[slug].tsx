@@ -15,8 +15,12 @@ import Link from "next/link";
 import { LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postView";
 
+type ProfilePageProps = {
+  // Define the prop types for the page
+  username: string;
+};
 
-const ProfilePage: NextPage<{ username: string }> = ({ username }: InferGetStaticPropsType<typeof getStaticProps>) => {
+const ProfilePage: NextPage<ProfilePageProps> = ({ username }: InferGetStaticPropsType<typeof getStaticProps>) => {
   
 const ProfileFeed = (props: {userId: string}) => {
   const { data, isLoading } = api.posts.getPostsByUserId.useQuery({ 
@@ -31,7 +35,7 @@ const ProfileFeed = (props: {userId: string}) => {
   return (
     <div className="flex flex-col gap-5 w-full p-5 border-b border-purple-50/20" >
       <h1 className="text-2xl md:text-4xl py-5 px-5 mb-53 font-bold bg-purple-200/20 text-purple-200 rounded-lg">🧾 Your Posts</h1>
-      {(data as any[])?.map((fullPost: any) => (
+      {data?.map((fullPost) => (
         <PostView key={fullPost.post.id} {...fullPost} />
       ))}
     </div>
@@ -95,10 +99,10 @@ const ProfileFeed = (props: {userId: string}) => {
                 src={data.profilePicture} 
                 height={150} 
                 width={150} 
-                alt="logo" 
+                alt="logo"
               />
               <Link 
-                href={`https://github.com/${data.username}`} 
+                href={`https://github.com/${data?.username ?? "default"}`} 
                 target="_blank"
               >            
                 <div className="flex flex-col justify-between items-left h-full md:w-full w-36 border border-purple-50/20 hover:bg-purple-50/5 hover:border-purple-500/20 rounded-xl py-5 px-4 group gap-2">
@@ -115,12 +119,12 @@ const ProfileFeed = (props: {userId: string}) => {
             </div>
             <div className="flex flex-col gap-2 md:gap-5 justify-between w-full">
               <InputWrapper>
-                <InputProfile title="first name" value={data.firstName || 'default'}/>
-                <InputProfile title="last name" value={data.lastName || 'default'}/>
+                <InputProfile title="first name" value={data.firstName ?? 'default'}/>
+                <InputProfile title="last name" value={data.lastName ?? 'default'}/>
               </InputWrapper>
               <InputWrapper>
-                <InputProfile title="username" value={data.username || 'default'}/>
-                <InputProfile title="username" value={data.email || 'default'}/>
+                <InputProfile title="username" value={data.username ?? 'default'}/>
+                <InputProfile title="username" value={data.email !== null ? String(data.email) : 'default'} />
               </InputWrapper>
               <InputWrapper>
                 <InputProfile title="gender" value={data.gender || '🤐'}/>
@@ -139,7 +143,7 @@ const ProfileFeed = (props: {userId: string}) => {
   );
 };
 
-export const getStaticProps: GetStaticProps =async (ctx) => {
+export const getStaticProps: GetStaticProps<ProfilePageProps> =async (ctx) => {
 
     const ssg = createServerSideHelpers({
       router: appRouter,

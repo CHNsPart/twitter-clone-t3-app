@@ -130,7 +130,7 @@ dayjs.extend(relativeTime)
   }
 
   
-  const Home: NextPage = (props) => {
+  const Home: NextPage = (_props) => {
 
   const { isSignedIn, user, isLoaded: userLoaded } = useUser()
   

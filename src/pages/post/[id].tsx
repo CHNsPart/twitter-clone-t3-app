@@ -4,7 +4,7 @@ import Head from "next/head";
 // import { useUser } from "@clerk/nextjs";
 
 
-const SinglePostPage: NextPage = (props) => {
+const SinglePostPage: NextPage = (_props) => {
   return (
     <>
       <Head>
@@ -20,7 +20,7 @@ const SinglePostPage: NextPage = (props) => {
         <meta property="og:title" content="Tweet — Code Blogging App"/>
         <meta property="og:description" content="Tweet is a powerful and user-friendly code blogging app designed for developers, programmers, and coding enthusiasts."/>
         <meta property="og:image" 
-        content="https://chnspart.com/meta/tweetmeta.png">
+        content="https://chnspart.com/meta/tweetmeta.png"/>
         {/* Twitter */}
           <meta property="twitter:card" content="summary_large_image"/>
           <meta property="twitter:url" content="https://chnspart.com/"/>
@@ -28,7 +28,6 @@ const SinglePostPage: NextPage = (props) => {
           <meta property="twitter:description" content="Tweet is a powerful and user-friendly code blogging app designed for developers, programmers, and coding enthusiasts."/>
           <meta property="twitter:image" 
           content="https://chnspart.com/meta/tweetmeta.png"/>
-        </meta>
       </Head>
       <main className="flex justify-center h-full">
         <div>

@@ -1,7 +1,7 @@
 
 import type { PropsWithChildren } from "react";
 
-export const InputProfile = (props:{title:string, value:string | []}) => {
+export const InputProfile = (props:{title:string, value:string }) => {
     return (
             <div className="flex flex-row justify-between w-full">
               <div className="inline-block justify-center bg-purple-200/10 text-purple-100 py-2 px-5 rounded-lg mx-2 flex-grow">
