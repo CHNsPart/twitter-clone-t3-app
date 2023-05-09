@@ -8,12 +8,11 @@ import relativeTime from "dayjs/plugin/relativeTime"
 import { SignInButton, useUser, SignOutButton } from "@clerk/nextjs";
 import toast from 'react-hot-toast';
 import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api"; 
 import { LoadingPage, LoadingTriangle } from "~/components/loading";
 import { useState } from "react";
-import Link from "next/link";
 import { HeadLayout, PageLayout } from "~/components/layout";
-
+import { Contributors, Notification } from "~/components/sideBards";
+import { PostView } from "~/components/postView";
 
 
 dayjs.extend(relativeTime)
@@ -23,8 +22,6 @@ dayjs.extend(relativeTime)
   const btnStylePost = "bg-none text-center py-2 px-4 rounded-full text-purple-500 cursor-pointer hover:bg-purple-500/10 hover:text-white"
 
   const btnOutStyle = "bg-none text-center p-4 rounded-xl text-red-500 cursor-pointer hover:bg-red-500 hover:text-white"
-
-  const postStyle = "bg-purple-200/10 text-purple-100 py-2 px-5 rounded-lg w-full p-5"
 
   const Avatar = () => {
     
@@ -78,7 +75,7 @@ dayjs.extend(relativeTime)
     })
 
     if(!user) return null
-    
+
     return (
       <div className="flex justify-start items-center p-1 border border-purple-500 rounded-full gap-5">
         <Image height={56} width={56} className="object-contain w-10 h-10 rounded-full" src={user.profileImageUrl} alt={`${user.fullName || "default"}'s profile picture`} />
@@ -115,33 +112,13 @@ dayjs.extend(relativeTime)
     )
   }
 
-  type PostWithUser = RouterOutputs["posts"]["getAll"][number]
-  const PostView = (props: PostWithUser) => {
-    const { post, author } = props;
-    return(
-      <div className={`flex justify-start items-start gap-5`} key={post.id}>
-        <Image height={56} width={56} className="object-contain w-10 h-10 rounded-full" src={author?.profilePicture} alt={`${author.username}'s post`} />
-        <div className="flex flex-col flex-grow gap-2">
-          <Link href={`/post/${post.id}`}>          
-            <p className={postStyle}>
-              {post.content}
-            </p>   
-          </Link>
-          <p className="font-thin text-purple-100/50 text-xs text-right tracking-wider">
-            posted by <span className="tracking-normal text-purple-100"> <Link href={`/@${author.username}`}>{`@${author?.username}`}</Link></span><span>{` • ${dayjs(post.createdAt).fromNow()}`}</span>
-          </p> 
-        </div>
-      </div>
-    )
-  }
-
   
   const Feed = () => {
 
     const { data, isLoading: postsLoading } = api.posts.getAll.useQuery()
 
     if (postsLoading) return <LoadingPage/>
-    if (!data) return <div>Something went wrong !</div> 
+    if (!data) return <div className="w-full border-b border-purple-50/20 flex justify-center items-center py-5">Something went wrong !</div> 
 
     return (
       <div className="flex flex-col gap-5 w-full p-5 border-b border-purple-50/20">
@@ -193,42 +170,64 @@ dayjs.extend(relativeTime)
           content="https://chnspart.com/meta/tweetmeta.png"/>
         </meta>
       </Head>
-        <PageLayout>
-            <HeadLayout>
-            { isSignedIn && <Avatar/> }
-            
-            <h1 className="text-2xl text-white font-bold"> 
-              { isSignedIn ?
-                (
-                  <>
-                    <span className="font-thin">Welcome,</span> { user.fullName || 'default' }
-                  </>
-                ) 
-                :
-                <div className="flex justify-center items-center gap-2">
-                  <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" /><span className="text-2xl font-bold">Tweet</span>
-                </div>
+        <main className="flex justify-center h-full">
+          <div className="hidden lg:flex flex-col w-fit max-w-xs left-0 gap-5 my-5 mx-5">
+            <Notification 
+              imageUrl="https://images.unsplash.com/photo-1535376472810-5d229c65da09?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80" 
+              imageAlt="Marketing"
+              title="Hello there !"
+              message="more projects"
+              link="https://github.com/chnspart"
+            />
+            <Contributors/>
+          </div>
+          <PageLayout>
+              <HeadLayout>
+              
+              { isSignedIn && <Avatar/> }
+              
+              <h1 className="text-2xl text-white font-bold"> 
+                { isSignedIn ?
+                  (
+                    <>
+                      <span className="font-thin">Welcome,</span> { user.fullName || 'default' }
+                    </>
+                  ) 
+                  :
+                  <div className="flex justify-center items-center gap-2">
+                    <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" /><span className="text-2xl font-bold">Tweet</span>
+                  </div>
+                }
+              </h1>
+
+
+              { !isSignedIn && <div className={btnStyle}><SignInButton /></div> }
+              
+              { !!isSignedIn && 
+                <div className={btnOutStyle}>
+                  <SignOutButton><AiOutlineLogout size={30}/></SignOutButton>
+                </div> 
               }
-            </h1>
-
-
-            { !isSignedIn && <div className={btnStyle}><SignInButton /></div> }
-            
-            { !!isSignedIn && 
-              <div className={btnOutStyle}>
-                <SignOutButton><AiOutlineLogout size={30}/></SignOutButton>
-              </div> 
+              
+            </HeadLayout>
+            { isSignedIn &&
+              <div className="flex flex-col gap-5 w-full p-5 
+              border-b border-purple-50/20">
+                <CreatePostWizard/>
+              </div>
             }
-            
-          </HeadLayout>
-          { isSignedIn &&
-            <div className="flex flex-col gap-5 w-full p-5 
-            border-b border-purple-50/20">
-              <CreatePostWizard/>
-            </div>
-          }
-          <Feed/>
-      </PageLayout>
+            <Feed/>
+        </PageLayout>
+          <div className="hidden lg:flex flex-col w-fit max-w-xs left-0 gap-5 my-5 mx-5">
+            <Notification
+              imageUrl="https://images.unsplash.com/photo-1614292253389-bd2c1f89cd0e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
+              imageAlt="Portfolio"
+              title="Portfolio"
+              message="checkckout"
+              link="https://chnspart.com"
+            />
+          </div>
+      </main>
     </>
   );
 };
