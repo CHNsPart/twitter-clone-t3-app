@@ -183,29 +183,32 @@ dayjs.extend(relativeTime)
           </div>
           <PageLayout>
               <HeadLayout>
-              
               { isSignedIn && <Avatar/> }
               
               <h1 className="text-2xl text-white font-bold"> 
                 { isSignedIn ?
                   (
                     <>
-                      <span className="font-thin">Welcome,</span> { user.fullName || 'default' }
+                      <span className="font-thin">
+                        Welcome,
+                      </span> { user.fullName || 'default' }
                     </>
                   ) 
                   :
                   <div className="flex justify-center items-center gap-2">
-                    <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" /><span className="text-2xl font-bold">Tweet</span>
+                    <Image src="https://chnspart.com/meta/tweetgrad.png" height={40} width={40} alt="logo h-16 w-16 p-2" />
+                    <span className="text-2xl font-bold">Tweet</span>
                   </div>
                 }
               </h1>
-
 
               { !isSignedIn && <div className={btnStyle}><SignInButton /></div> }
               
               { !!isSignedIn && 
                 <div className={btnOutStyle}>
-                  <SignOutButton><AiOutlineLogout size={30}/></SignOutButton>
+                  <SignOutButton>
+                    <AiOutlineLogout size={30}/>
+                  </SignOutButton>
                 </div> 
               }
               

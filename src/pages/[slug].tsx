@@ -1,11 +1,7 @@
 import type { GetStaticProps, NextPage, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { prisma } from "~/server/db";
-import { createServerSideHelpers } from '@trpc/react-query/server';
 import { AiFillGithub } from 'react-icons/ai'
-import { appRouter } from "~/server/api/root";
-import superjson from "superjson";
 import { HeadLayout, PageLayout } from "~/components/layout";
 import Image from "next/image";
 import dayjs from "dayjs";
@@ -14,6 +10,7 @@ import { InputProfile, InputWrapper } from "~/components/profile";
 import Link from "next/link";
 import { LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postView";
+import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 
 type ProfilePageProps = {
   // Define the prop types for the page
@@ -143,21 +140,16 @@ const ProfileFeed = (props: {userId: string}) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<ProfilePageProps> =async (ctx) => {
+export const getStaticProps: GetStaticProps = async (ctx) => {
 
-    const ssg = createServerSideHelpers({
-      router: appRouter,
-      ctx: { prisma, userId:null },
-      transformer: superjson, // optional - adds superjson serialization
-    });
-
+    const ssg = generateSSGHelper()
     const slug = ctx.params?.slug as string
 
     if (typeof slug !== "string") throw new Error("no slug")
 
     const username = slug.replace("@","")
 
-    await ssg.profile.getUserByUserName.prefetch({ username })
+    await ssg.profile.getUserByUserName.prefetch({ username });
 
     return {
       props: {
