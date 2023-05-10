@@ -1,14 +1,10 @@
 import type { GetStaticProps, NextPage, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { prisma } from "~/server/db";
-import { createServerSideHelpers } from '@trpc/react-query/server';
-
-import { appRouter } from "~/server/api/root";
-import superjson from "superjson";
 import { HeadLayout, PageLayout } from "~/components/layout";
 import Image from "next/image";
-
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime"
 import Link from "next/link";
 import { LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postView";
@@ -18,7 +14,7 @@ import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 
 type SinglePostPage = {
   // Define the prop types for the page
-  username: string;
+  id: string;
 };
   
 const ProfileFeed = (props: {userId: string}) => {
@@ -41,24 +37,23 @@ const ProfileFeed = (props: {userId: string}) => {
   )
 }
 
-const SinglePostPage: NextPage<SinglePostPage> = (_props: InferGetStaticPropsType<typeof getStaticProps>) => {
+const SinglePostPage: NextPage<SinglePostPage> = ({ id }) => {
   
 
-  // const { data } = api.profile.getUserByUserName.useQuery({
-  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  //   username,
-  // });
+  const { data } = api.posts.getByID.useQuery({
+    id,
+  });
     
-  // if (!data) return <div>404 Nigga!</div>
-  
-  // dayjs.extend(relativeTime)
+  if (!data) return <div>404 Nigga!</div>
+    
+  dayjs.extend(relativeTime)
 
 
 
   return (
     <>
       <Head>
-        <title>Tweet - Post Page</title>
+        <title>{`${data.post.content} - ${data.author.username}`}</title>
         <meta name="author" content="Touhiudl Islam Chayan" />
         <meta name="description" content="Tweet is a powerful and user-friendly code blogging app designed for developers, programmers, and coding enthusiasts. With Tweet, you can easily create, share, and discover high-quality code snippets, tutorials, and projects in a vibrant community of like-minded individuals." />
         <meta name="keywords" content="HTML, CSS, JavaScript, React, NextJS, T3 app, TRPC, Planet Scale, code blogging app, code snippets, tutorials, programming projects, community, developers, programmers, coding enthusiasts."/>
@@ -89,6 +84,35 @@ const SinglePostPage: NextPage<SinglePostPage> = (_props: InferGetStaticPropsTyp
               </div> 
             </Link>
           </HeadLayout>
+          <div 
+            className="flex flex-col md:flex-row w-full justify-between items-center 
+                      p-5 gap-2 border-b border-purple-50/20 md:items-start
+                      md:p-5 md:gap-2"
+            >
+
+            <div className="flex flex-col w-full gap-5 bg-purple-50/5 p-5 rounded-xl">
+              <div className="flex w-full text-center justify-center h-44 items-center gap-5 border-b border-purple-50/20">
+                <h1 className="text-4xl font-bold">
+                  {data.post.content}
+                </h1>
+              </div>
+              <div className="flex justify-between items-center gap-5">
+                <div className="flex justify-between items-center gap-5">
+                  <Image 
+                    src={data.author.profilePicture} 
+                    height={40} width={40} 
+                    alt="avatar" className="rounded-full"
+                  />
+                  <span className="font-bold text-md text-right tracking-normal text-purple-200">
+                    <Link href={`/${data.author.username}`}>
+                      {data.author.username}
+                    </Link>
+                  </span>
+                </div>
+                <span className="font-medium text-purple-200/80 text-xs text-right tracking-wider">{`${dayjs(data.post.createdAt).fromNow()}`}</span>
+              </div>
+            </div>
+          </div>
         </PageLayout>
       </main>
     </>
